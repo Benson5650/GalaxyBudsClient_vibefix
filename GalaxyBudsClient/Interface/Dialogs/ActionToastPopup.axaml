@@ -1,0 +1,88 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        x:Class="GalaxyBudsClient.Interface.Dialogs.ActionToastPopup"
+        Height="72"
+        Width="280"
+        MaxWidth="280"
+        CanResize="False"
+        WindowStartupLocation="Manual"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
+        TransparencyLevelHint="Transparent"
+        SystemDecorations="None"
+        Background="Transparent"
+        UseLayoutRounding="True"
+        Icon="/Resources/icon.ico"
+        ShowInTaskbar="False"
+        Topmost="True"
+        ShowActivated="False"
+        Focusable="False"
+        Title="Galaxy Buds Manager (Toast)"
+        PointerPressed="Window_OnPointerPressed">
+
+    <Border Name="OuterBorder"
+            BorderBrush="{DynamicResource SurfaceStrokeColorFlyoutBrush}"
+            BorderThickness="1"
+            Background="{DynamicResource SolidBackgroundFillColorBaseBrush}"
+            CornerRadius="{StaticResource OverlayCornerRadius}">
+        <Border.Styles>
+            <Style Selector="Border[Tag=showing]">
+                <Style.Animations>
+                    <Animation IterationCount="1"
+                               PlaybackDirection="Normal"
+                               FillMode="Both"
+                               Duration="0:0:.3">
+                        <KeyFrame Cue="0%">
+                            <Setter Property="Opacity" Value="0.0" />
+                            <Setter Property="TranslateTransform.Y" Value="12" />
+                        </KeyFrame>
+                        <KeyFrame Cue="100%">
+                            <Setter Property="Opacity" Value="1.0" />
+                            <Setter Property="TranslateTransform.Y" Value="0" />
+                        </KeyFrame>
+                    </Animation>
+                </Style.Animations>
+            </Style>
+            <Style Selector="Border[Tag=hiding]">
+                <Style.Animations>
+                    <Animation IterationCount="1"
+                               PlaybackDirection="Normal"
+                               FillMode="Both"
+                               Duration="0:0:.3">
+                        <KeyFrame Cue="0%">
+                            <Setter Property="Opacity" Value="1.0" />
+                            <Setter Property="TranslateTransform.Y" Value="0" />
+                        </KeyFrame>
+                        <KeyFrame Cue="100%">
+                            <Setter Property="Opacity" Value="0.0" />
+                            <Setter Property="TranslateTransform.Y" Value="12" />
+                        </KeyFrame>
+                    </Animation>
+                </Style.Animations>
+            </Style>
+        </Border.Styles>
+
+        <StackPanel Orientation="Horizontal"
+                    Spacing="12"
+                    Margin="16,0"
+                    VerticalAlignment="Center">
+            <TextBlock Name="IconText"
+                       FontFamily="Segoe Fluent Icons,Segoe MDL2 Assets"
+                       FontSize="20"
+                       VerticalAlignment="Center"
+                       Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+            <StackPanel Spacing="2" VerticalAlignment="Center">
+                <TextBlock Name="ActionLabel"
+                           FontSize="13"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                <TextBlock Name="StatusLabel"
+                           FontSize="11"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>

@@ -33,6 +33,7 @@ using GalaxyBudsClient.Scripting.Experiment;
 #endif
 using GalaxyBudsClient.Utils;
 using GalaxyBudsClient.Utils.Interface;
+using GalaxyBudsClient.Interface.ViewModels.Pages;
 using Serilog;
 using Application = Avalonia.Application;
 using MainWindow = GalaxyBudsClient.Interface.MainWindow;
@@ -58,6 +59,7 @@ public class App : Application
 #endif
     
     private BudsPopup? _popup;
+    private ActionToastPopup? _actionToast;
     private bool _popupShown;
     private LegacyWearStates _lastWearState = LegacyWearStates.Both;
     
@@ -149,13 +151,69 @@ public class App : Application
             case Event.ToggleManagerVisibility:
                 if (!PlatformUtils.IsDesktop)
                     break;
-                
                 MainWindow.Instance.ToggleVisibility();
                 break;
             case Event.ShowBatteryPopup:
                 ShowPopup(true);
                 break;
+            // --- Toggle feedback toasts ---
+            case Event.AncToggle:
+            case Event.AmbientToggle:
+            case Event.ToggleConversationDetect:
+            case Event.EqualizerToggle:
+            case Event.LockTouchpadToggle:
+                ShowActionToast(e);
+                break;
         }
+    }
+
+    private void ShowActionToast(Event e)
+    {
+        if (!PlatformUtils.IsDesktop) return;
+        try
+        {
+            _actionToast ??= new ActionToastPopup();
+        }
+        catch (InvalidOperationException)
+        {
+            _actionToast = new ActionToastPopup();
+        }
+
+        // Read live state from the ViewModel (same pattern as TrayManager).
+        // NOTE: The ViewModel's OnEventReceived posts its toggle via Dispatcher.UIThread.Post,
+        // so it may not have run yet on this call. We invert the CURRENT state to predict
+        // the new state after the toggle.
+        var ncVm = MainView.Instance?.ResolveViewModelByType<NoiseControlPageViewModel>();
+
+        (string icon, string label, string status) = e switch
+        {
+            Event.AncToggle => (
+                "\uE8D6",
+                Generated.I18N.Strings.EventAncToggle,
+                ncVm?.IsAncEnabled != true
+                    ? Generated.I18N.Strings.On : Generated.I18N.Strings.Off),
+            Event.AmbientToggle => (
+                "\uE7F4",
+                Generated.I18N.Strings.EventAmbientToggle,
+                ncVm?.IsAmbientSoundEnabled != true
+                    ? Generated.I18N.Strings.On : Generated.I18N.Strings.Off),
+            Event.ToggleConversationDetect => (
+                "\uE720",
+                Generated.I18N.Strings.EventConversationToggle,
+                ncVm?.IsVoiceDetectEnabled != true
+                    ? Generated.I18N.Strings.On : Generated.I18N.Strings.Off),
+            Event.EqualizerToggle => (
+                "\uE9E9",
+                Generated.I18N.Strings.EventEqToggle,
+                string.Empty),
+            Event.LockTouchpadToggle => (
+                "\uE72E",
+                Generated.I18N.Strings.EventTouchLockToggle,
+                string.Empty),
+            _ => ("\uE9E9", e.GetLocalizedDescription(), string.Empty)
+        };
+
+        _actionToast.ShowToast(icon, label, status);
     }
     
     private void ShowPopup(bool noDebounce = false)

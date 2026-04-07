@@ -1,5 +1,5 @@
-﻿using System;
 using System.Collections.Generic;
+using GalaxyBudsClient.Model.Constants;
 using GalaxyBudsClient.Platform.Interfaces;
 using GalaxyBudsClient.Platform.Model;
 using GalaxyBudsClient.Utils.Extensions;
@@ -7,12 +7,20 @@ using ReactiveUI;
 
 namespace GalaxyBudsClient.Model;
 
-public partial class Hotkey : ReactiveObject, IHotkey
+/*
+ * NOTE: Do NOT use [Reactive] from ReactiveUI.SourceGenerators here.
+ * The JSON SourceGenerator (System.Text.Json AOT) cannot see properties generated
+ * by other source generators (source generator chaining is unsupported).
+ * Use ReactiveUI.Fody.Helpers.Reactive instead, which uses IL weaving at compile
+ * time and is therefore visible to all subsequent tooling.
+ * See also: SettingsData.cs for the same workaround.
+ */
+public class Hotkey : ReactiveObject, IHotkey
 {
-    [Reactive] private IEnumerable<ModifierKeys> _modifier = ArraySegment<ModifierKeys>.Empty;
-    [Reactive] private IEnumerable<Keys> _keys = ArraySegment<Keys>.Empty;
-    [Reactive] private Event _action;
-    
+    [ReactiveUI.Fody.Helpers.Reactive] public List<ModifierKeys> Modifier { get; set; } = [];
+    [ReactiveUI.Fody.Helpers.Reactive] public List<Keys> Keys { get; set; } = [];
+    [ReactiveUI.Fody.Helpers.Reactive] public Event Action { get; set; }
+
     internal string ActionName => Action.GetLocalizedDescription();
     internal string HotkeyName => Keys.AsHotkeyString(Modifier);
 

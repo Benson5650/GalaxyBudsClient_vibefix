@@ -5,6 +5,6 @@ namespace GalaxyBudsClient.Platform.Interfaces;
 
 public interface IHotkey
 {
-    IEnumerable<ModifierKeys> Modifier { set; get; }
-    IEnumerable<Keys> Keys { set; get; }
+    List<ModifierKeys> Modifier { set; get; }
+    List<Keys> Keys { set; get; }
 }

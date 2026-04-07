@@ -93,15 +93,18 @@ public class HotkeyReceiver : IHotkeyReceiver, IDisposable
 
     public async Task UnregisterAllAsync()
     {
-        for (var i = _currentId; i > 0; i--)
+        var id = _currentId;
+        _wndProc.Invoke(() =>
         {
-            UnregisterHotKey(_wndProc.WindowHandle, i);
-        }
-            
+            for (var i = id; i > 0; i--)
+                UnregisterHotKey(_wndProc.WindowHandle, i);
+        });
+
         _hotkeys.Clear();
-            
+        _currentId = 0;
+
         Log.Debug("Windows.HotkeyReceiver: All hotkeys unregistered");
-         
+
         await Task.CompletedTask;
     }
 
@@ -151,15 +154,24 @@ public class HotkeyReceiver : IHotkeyReceiver, IDisposable
     private int RegisterHotKey(ModifierKeys modifier, Keys key)
     {
         _currentId += 1;
+        var id = _currentId;
+        int errorCode = 0;
 
-        if (!RegisterHotKey(_wndProc.WindowHandle, _currentId, (uint) modifier, (uint) key))
+        _wndProc.Invoke(() =>
         {
-            var code = Marshal.GetLastWin32Error();
-            Log.Error("Windows.HotkeyReceiver.Register: Unable to register hotkey (Error code: {Code}) (Modifiers: {Modifier}; Key: {Key})", code, modifier, key);
-            return code;
-        }
-            
-        Log.Debug("Hotkey successfully registered (Modifiers: {Modifier}; Key: {Key})", modifier, key);
-        return 0;
+            if (!RegisterHotKey(_wndProc.WindowHandle, id, (uint)modifier, (uint)key))
+            {
+                errorCode = Marshal.GetLastWin32Error();
+                Log.Error(
+                    "Windows.HotkeyReceiver.Register: Unable to register hotkey (Error code: {Code}) (Modifiers: {Modifier}; Key: {Key})",
+                    errorCode, modifier, key);
+            }
+            else
+            {
+                Log.Debug("Hotkey successfully registered (Modifiers: {Modifier}; Key: {Key})", modifier, key);
+            }
+        });
+
+        return errorCode;
     }
 }

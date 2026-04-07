@@ -1,5 +1,8 @@
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
+using GalaxyBudsClient.Model;
+using GalaxyBudsClient.Platform.Model;
 
 namespace GalaxyBudsClient.Model.Config;
 
@@ -16,4 +19,6 @@ namespace GalaxyBudsClient.Model.Config;
 [JsonSerializable(typeof(Device))]
 [JsonSerializable(typeof(ObservableCollection<Hotkey>))]
 [JsonSerializable(typeof(ObservableCollection<Device>))]
+[JsonSerializable(typeof(List<ModifierKeys>))]
+[JsonSerializable(typeof(List<Keys>))]
 public partial class SettingsSerializerContext : JsonSerializerContext;
